@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIC TAC TOE Game</title>
+    <style>
+        section{
+            width: 600px;
+            height: 600px;
+            border: 1px solid black;
+            margin: auto;
+        }
+        .box{
+            width: 200px;
+            height: 200px;
+            background: orange;
+            position: absolute;
+            font-size: 200px;
+            font-family: d7;
+            text-align: center;
+            cursor: pointer;
+            transition: 2s;
+            color: rgba(0,0,0,0.7);
+        }
+        .box:hover{
+            color: rgba(0,0,0,0.3);
+        }
+        @font-face{
+            font-family: d7;
+            src:url(digital-7/digital-7.ttf);
+        }
+        
+    </style>
+</head>
+<body>
+    <section>
+        
+    </section>
+</body>
+<script>
+    var values=[];
+    function createBoxes(){
+        var boxes="";
+        for(let i=0;i<3;i++){
+            var v=[];
+            for(let j=0;j<3;j++){
+                y=i*200;
+                x=j*200;
+                v.push("");
+                if((i+j)%2==0){
+                    bg="orange";
+                }
+                else{
+                    bg="yellow";
+                }
+                boxes+=`<div class="box" onclick='boxclick(this,${i},${j})' onmouseout='outbox(this)' onmouseover= 'onbox(this)' style='margin:${x}px ${y}px;background:${bg}'></div>`;
+            }
+            values.push(v);
+        }
+        document.querySelector("section").innerHTML = boxes;
+
+    }
+
+    Player="O";
+
+    function onbox(box){
+        box.innerHTML=Player;
+    }
+    function outbox(box){
+        box.innerHTML="";
+    }
+    function boxclick(box,i,j){
+        alert(Player+": "+i+","+j+' selected');
+        box.innerHTML=Player;
+        values[i][j]=Player;
+        box.removeAttribute("onmouseover");
+        box.removeAttribute("onmouseout");
+        box.removeAttribute("onclick");
+
+        line=isLineComplete();
+        if(line.length>0){
+            bs=document.querySelectorAll(".box");
+            line.forEach(boxno => {
+                bs[boxno].style.background="black";
+            });
+        }
+        Player=Player=="O"?"X":"O";
+    }
+
+    function isLineComplete(){
+
+        //ROW
+        for(i=0;i<3;i++){
+            if(values[i][0]!=""&&values[i][0]==values[i][1]&&values[i][0]==values[i][2]){
+                return [i*3,i*3+1,i*3+2];
+            }
+        }
+
+        //COLUMN
+        for(j=0;j<3;j++){
+            if(values[0][j]!=""&&values[0][j]==values[1][j]&&values[0][j]==values[2][j]){
+                return [j,3+j,6+j];
+            }
+        }
+
+        //DIAGONAL
+        if(values[1][1]!=""&&values[0][0]==values[1][1]&&values[1][1]==values[2][2]){
+            return [0,4,8];
+        }
+        if(values[1][1]!=""&&values[0][2]==values[1][1]&&values[1][1]==values[2][0]){
+            return [2,4,6];
+        }
+        return[];
+    }
+    createBoxes();
+</script>
+</html>

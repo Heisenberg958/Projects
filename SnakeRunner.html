@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Runner</title>
+    <style>
+        canvas{
+            width: 500px;
+            height: 500px;
+            border: 2px solid black;
+            background: bisque;
+            margin: auto;
+            display: block;
+        }
+        .btn{
+            display: block;
+            margin: auto;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: 1.3s;
+            color: black;
+            font-size: 25px;
+            background: wheat;
+            padding: 20px;
+        }
+        .btn:hover{
+            background-color: black;
+            background: wheat;
+        }
+        .go{
+            position: fixed;
+            margin-left: 38%;
+            margin-top: 10%;
+            font-size: 90px;
+        }
+        .score{
+            margin: auto;
+            display: block;
+            text-align: center;
+            color: black;
+            font-size: 40px;
+            padding-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <h1 class="go">Start Game</h1>
+    <canvas></canvas>
+    <button onclick="playGame()" class="btn">Start Your Game</button>
+    <h2 class="score">Score: <span id="score"></span></h2>
+</body>
+<script>
+    var canvas=document.querySelector("canvas");
+    canvas.width=500;
+    canvas.height=500;
+    var ctx=canvas.getContext("2d");
+    var snakeboxes=[],breakers=[];
+    var food;
+    var score=100;
+
+
+    function box(x,y,width,height,red,green,blue,dx,dy){
+        this.x=x;
+        this.y=y;
+        this.width=width;
+        this.height=height;
+        this.red=red;
+        this.green=green;
+        this.blue=blue;
+        this.dx=dx;
+        this.dy=dy;
+    }
+
+    function createSnakes(){
+        var red=255*Math.random();
+        var green=255*Math.random();
+        var blue=255*Math.random();
+        for (let x = 40; x > 0; x-=10) {
+            b= new box(x,0,10,10,red,green,blue,1,0);
+            snakeboxes.push(b);
+           
+            
+        }
+    }
+
+
+    function createFood(){
+        var red=255*Math.random();
+        var green=255*Math.random();
+        var blue=255*Math.random();
+        var x=parseInt(Math.random()*canvas.width/10)*10;
+        var y=parseInt(Math.random()*canvas.width/10)*10;
+        food= new box(x,y,10,10,red,green,blue);  
+          
+    }
+
+    function drawSnake(){
+        snakeboxes.forEach(box=>{
+            ctx.beginPath();
+            ctx.rect(box.x,box.y,box.width,box.height);
+            ctx.fillStyle=`rgb(${box.red},${box.green},${box.blue})`;
+            ctx.fill();
+            ctx.strokeStyle="black";
+            ctx.stroke();
+            ctx.closePath();
+        });
+    }
+
+    function drawFood(){
+            ctx.beginPath();
+            ctx.rect(food.x,food.y,food.width,food.height);
+            ctx.fillStyle=`rgb(${food.red},${food.green},${food.blue})`;
+            ctx.fill();
+            ctx.strokeStyle="black";
+            ctx.stroke();
+            ctx.closePath();
+    }
+
+    function moveSnake(){
+        snakeboxes.splice(snakeboxes.length-1,1);
+        b = new box(snakeboxes[0].x,snakeboxes[0].y,snakeboxes[0].width,
+            snakeboxes[0].height,snakeboxes[0].red,snakeboxes[0].green,
+            snakeboxes[0].blue,snakeboxes[0].dx,snakeboxes[0].dy);
+
+        b.x+=b.dx*b.width;
+        b.y+=b.dy*b.height;
+     snakeboxes.unshift(b);
+    }
+    //createSnakes();
+    //drawSnake();
+    //moveSnake();
+    //drawSnake();
+    
+
+    document.body.onkeydown = function(event){
+        switch(event.keyCode){
+            case 37://LEFT
+            if(snakeboxes[0].dx!=1){
+                snakeboxes[0].dx=-1;
+                snakeboxes[0].dy=0;
+            }
+                break;
+            case 38://TOP
+            if(snakeboxes[0].dy!=1){
+                snakeboxes[0].dx=0;
+                snakeboxes[0].dy=-1;
+            }
+                break;
+            case 39://RIGHT
+            if(snakeboxes[0].dx!=-1){
+                snakeboxes[0].dx=1;
+                snakeboxes[0].dy=0;
+            }
+                break;
+            case 40://DOWN
+            if(snakeboxes[0].dy!=-1){
+                snakeboxes[0].dx=0;
+                snakeboxes[0].dy=1;
+            }
+                break;
+        }
+    }
+    function checkBoundary(){
+        if(snakeboxes[0].x==canvas.width){
+            snakeboxes[0].x=0;
+        }
+        else if(snakeboxes[0].x==-snakeboxes[0].width){
+            snakeboxes[0].x=canvas.width-10;
+        }
+        if(snakeboxes[0].y==canvas.height){
+            snakeboxes[0].y=0;
+        }
+        else if(snakeboxes[0].y==-snakeboxes[0].height){
+            snakeboxes[0].y=canvas.height-10;
+        }
+    }
+
+    function checkFood(){
+        if(snakeboxes[0].x==food.x&&snakeboxes[0].y==food.y){
+            snakeboxes.push(food);
+            snakeboxes[0].red=food.red;
+            snakeboxes[0].green=food.green;
+            snakeboxes[0].blue=food.blue;
+            score+=100;
+            createFood();
+        }
+    }
+    function createBreakers(){
+        for (let i = 0; i < 30; i++) {
+        var x=parseInt(Math.random()*canvas.width/10)*10;
+        var y=parseInt(Math.random()*canvas.width/10)*10;
+        b= new box(x,y,10,10,0,0,0);
+        breakers.push(b);
+            
+        }
+    }
+    function drawBreakers(){
+        breakers.forEach(box=>{
+            ctx.beginPath();
+            ctx.rect(box.x,box.y,box.width,box.height);
+            ctx.fillStyle=`rgb(${box.red},${box.green},${box.blue})`;
+            ctx.fill();
+            ctx.strokeStyle="black";
+            ctx.stroke();
+            ctx.closePath();
+        });
+    }
+    function checkBreakertouch(){
+        var flag=false;
+        breakers.forEach(box=>{
+            if(snakeboxes[0].x==box.x&&snakeboxes[0].y==box.y){
+                flag=true;
+            
+            } 
+        });
+        if(flag==true){
+            gameover();
+        }
+
+    }
+
+    function drawgame(){
+        play = setInterval(()=>{
+            ctx.clearRect(0,0,canvas.width,canvas.height); 
+            drawSnake();
+            drawFood();
+            drawBreakers();
+            moveSnake(); 
+            checkBoundary();
+            checkFood();
+            checkBreakertouch();
+            score--;
+            if(score==0){
+                gameover();
+            }
+            document.getElementById("score").innerHTML =score;
+        },100);
+    }
+
+    function playGame(){
+        score=100;
+        snakeboxes.splice(0,snakeboxes.length);
+        breakers.splice(0,breakers.length);
+        createSnakes();
+        createFood();
+        createBreakers();
+        drawgame();
+        document.querySelector(".btn").style.display="none";
+        document.querySelector(".go").style.display="none";
+    }
+
+    function gameover(){
+            document.querySelector(".btn").style.display="block";
+            document.querySelector(".go").style.display="block";
+            document.querySelector(".go").innerHTML = "Game Over";
+            clearInterval(play);
+    }
+</script>
+</html>
